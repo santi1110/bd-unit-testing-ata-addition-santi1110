@@ -1,0 +1,88 @@
+plugins {
+    id 'java'
+    id 'checkstyle'
+    id 'jacoco'
+    id 'com.github.spotbugs' version '4.7.1'
+    id "com.github.johnrengelman.shadow" version "7.0.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+checkstyle {
+    sourceSets = [sourceSets.main, sourceSets.test]
+    configFile = file("$rootDir/LibrariesAndUtilities/ATACheckstyle/configuration/checkstyle/checkstyle.xml")
+    configProperties.put('checkstyle.suppression.filter', "$rootDir/LibrariesAndUtilities/ATACheckstyle/configuration/checkstyle/suppressions.xml")
+    ignoreFailures = true
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.00
+            }
+        }
+    }
+}
+
+// for use with the Gradle Java Plugin
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/']
+        }
+        resources {
+            srcDirs = ['resources/']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['tst/']
+        }
+        resources {
+            srcDirs = ['resources/']
+        }
+    }
+}
+
+spotbugs {
+    ignoreFailures = true
+}
+
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+
+    implementation 'com.google.guava:guava:30.1.1-jre'
+
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.10.0'
+
+
+    implementation files("$rootDir/LibrariesAndUtilities/ATAResources.jar")
+    implementation project('LibrariesAndUtilities:LessonPlanResources')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+project.configurations.implementation.setCanBeResolved(true)
