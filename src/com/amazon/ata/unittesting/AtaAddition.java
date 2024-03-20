@@ -29,12 +29,21 @@ public class AtaAddition {
      * }</pre>
      */
     public int add(int[] integers) {
-        int sum = 0;
-        for (int x : integers) {
-            sum += x;
+        if (null == integers) {
+            return 0;
         }
-        return sum;
 
-    }
-}
+        Long longSum = 0L;
+        for (int x : integers) {
+            longSum = longSum + x;
 
+            // throw ArithmeticException on overflow/underflow of running sum
+            if (longSum > Integer.MAX_VALUE) {
+                throw new ArithmeticException("Sum overflowed Integer");
+            } else if (longSum < Integer.MIN_VALUE) {
+                throw new ArithmeticException("Sum underflowed Integer");
+            }
+        }
+
+        return longSum.intValue();
+    }}
